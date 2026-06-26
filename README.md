@@ -1,2 +1,2 @@
-# BD-Klepper
-Tauri And VueJS based yt-dlp wraper
+# BD Klepper
+Tauri & VueJS based yt-dlp wrapper

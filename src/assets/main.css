@@ -1,0 +1,99 @@
+@font-face {
+    font-family: 'Rajdhani Medium';
+    src: url('./fonts/Rajdhani-Medium.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Rajdhani Regular';
+    src: url('./fonts/Rajdhani-Regular.ttf') format('truetype');
+}
+
+:root {
+    --dark: #080b12;
+
+    --light: #2e0e11;
+
+    --accent: #1cffff;
+
+
+    --text: #fd503f;
+    --text-accent: #ff6863;
+    --text-dark: #351216;
+    --text-dark-light: #6c252b;
+
+    color-scheme: dark;
+
+    --font-size: 1rem;
+}
+::selection {
+    background: light-dark(var(--accent), var(--accent));
+}
+
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    font-weight: normal;
+}
+
+html, body {
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+}
+
+body {
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    color: var(--text);
+    background-image: linear-gradient(to top, #080b12, #110d18, #1c0e1b, #260e18, #2e0e11);
+    transition: all 0.5s ease;
+    line-height: 1.6;
+    font-family: "Rajdhani Regular", serif;
+    font-size: var(--font-size);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+    margin: 0;
+    padding: 0;
+
+    display: grid;
+
+    width: 100%;
+    height: 100%;
+
+    grid-template-columns: 1fr ;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+    "header"
+    "main"
+    "footer";
+
+    gap: 1em;
+}
+
+header {
+    grid-area: header;
+}
+
+main {
+    grid-area: main;
+}
+
+footer {
+    grid-area: footer;
+}
+
+a:link {
+    text-decoration: none;
+    font-size: var(--font-size);
+}
+a {
+    color: inherit;
+    text-decoration: none;
+    font-size: var(--font-size);
+}
