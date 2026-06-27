@@ -13,7 +13,7 @@
     "windows": [
       {
         "title": "BD Klepper",
-        "width": 900,
+        "width": 800,
         "height": 350,
         "resizable": false,
         "decorations": false

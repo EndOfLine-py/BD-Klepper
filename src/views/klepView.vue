@@ -5,10 +5,14 @@
 <template>
 <div class="container">
   <div class="cyber-input-wrapper">
-    <input type="text">
+    <input type="text" autocomplete="off" autocapitalize="off" spellcheck="false"/>
   </div>
   <button>Klep it!</button>
-  <p>Status</p>
+  <div class="cyber-p-wrapper">
+    <p>
+      Status
+    </p>
+  </div>
 </div>
 </template>
 
@@ -92,14 +96,15 @@ button:active::before {
   background-color: var(--accent);
 }
 
-/* 1. The Wrapper acts as the border color and clips the shape */
+
 .cyber-input-wrapper {
   position: relative;
   display: inline-block;
-  width: 70%; /* Moved your width here */
-  margin: 10px; /* Moved your margin here */
+  width: 80%;
 
-  background-color: var(--dull); /* This is your OUTLINE color */
+  margin-bottom: 10px;
+
+  background-color: var(--dull);
 
   clip-path: polygon(
       0 0,
@@ -110,7 +115,7 @@ button:active::before {
   );
 }
 
-/* 2. The Input sits inside, slightly offset to reveal the wrapper's color underneath */
+
 .cyber-input-wrapper input[type="text"] {
   display: block;
   border: none;
@@ -120,18 +125,16 @@ button:active::before {
   font-family: "Rajdhani Medium", serif;
   font-size: 20px;
   color: var(--accent);
+  text-shadow: var(--accent) 0 0 12px;
   background-color: var(--dullest);
 
-  /* Creates the "border thickness" by shrinking the input slightly inside the wrapper */
   margin: 1px;
   width: calc(100% - 2px);
   height: calc(100% - 2px);
 
-  /* Padding stays on the input so typing looks correct */
   padding: 15px;
   box-sizing: border-box;
 
-  /* Must clip the input exactly the same way so it matches the wrapper */
   clip-path: polygon(
       0 0,
       100% 0,
@@ -145,4 +148,63 @@ button:active::before {
   background-color: var(--accent); /* Turns white on focus, change to whatever you like */
 }
 
+.cyber-p-wrapper {
+  display: inline-block; /* Or 'block' if you want it to stretch full width */
+  width: 50%;
+  margin: 10px;
+  align-content: center;
+
+  background-color: var(--yellow); /* Your OUTLINE color */
+
+  clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 12px),
+      calc(100% - 12px) 100%,
+      0 100%
+  );
+}
+
+.cyber-p-wrapper p {
+  margin: 1px; /* The thickness of your border */
+  padding: 5px;
+
+  font-family: "Rajdhani Medium", serif;
+  font-size: 20px;
+  color: var(--yellow);
+  background-color: var(--dullest); /* Your inner background color */
+
+  text-align: left;
+
+  /* Must have the exact same clip-path to match the wrapper shape */
+  clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 12px),
+      calc(100% - 12px) 100%,
+      0 100%
+  );
+}
+.cyber-p-wrapper p::before {
+  content: '!';                 /* The exclamation mark */
+  display: inline-flex;
+  align-items: center;          /* Centers the '!' vertically */
+  justify-content: center;      /* Centers the '!' horizontally */
+
+  width:  24px;                  /* Size of the circle */
+  height: 24px;
+  border-radius: 50%;           /* Makes it a perfect circle */
+
+  background-color: #fbc531;    /* Cyberpunk warning yellow */
+  color: #0c1015;               /* Matches your dark UI color */
+
+  font-family: "Arial Black", sans-serif; /* Makes the '!' nice and bold */
+  font-size: 20px;
+
+  /* Optional: Soft red glow behind the circle to match the image */
+  box-shadow: 0 0 12px rgba(255, 71, 87, 0.4);
+
+  /* Keeps the badge from shrinking if the paragraph text gets long */
+  flex-shrink: 0;
+}
 </style>
