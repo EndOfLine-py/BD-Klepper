@@ -61,7 +61,7 @@ loaderFadeOut.onfinish = () => {
     </div>
   </header>
 
-  <main class="container">
+  <main>
     <RouterView/>
   </main>
 
@@ -91,19 +91,19 @@ header {
   flex-direction: row;
   justify-content: space-between;
 
-  border-bottom: var(--text-dark-light) 1px solid;
+  border-bottom: var(--dull) 1px solid;
 }
 
 #title {
   padding-left: 10px;
   font-family: "Rajdhani Medium",serif;
-  color: var(--text-accent);
+  color: var(--red);
 
   text-decoration: none;
   font-size: 28px;
 
   cursor: default;
-  text-shadow: var(--text) 0 0 16px;
+  text-shadow: var(--red) 0 0 16px;
 }
 
 nav {
@@ -114,52 +114,56 @@ nav {
   align-items: center;
   justify-content: center;
 
-  color: var(--text-accent);
+  color: var(--red);
 
   gap: 1rem;
 
   span {
-    color: var(--text-dark-light);
+    color: var(--red);
   }
 }
 
 nav a:hover {
-  text-shadow: var(--text-accent) 0 0 12px;
+  text-shadow: var(--red) 0 0 12px;
 }
 
 footer {
   width: 100%;
   user-select: none;
-  border-top: var(--text-dark-light) 1px solid;
+  border-top: var(--dull) 1px solid;
   display: flex;
   justify-content: center;
   span {
     cursor: pointer;
     color: var(--accent);
   }
-  text-shadow: var(--text-dark-light) 0 0 12px;
+  text-shadow: var(--dull) 0 0 12px;
 }
 
 .titlebar {
   display: flex;
+  align-items: center;
 
   flex-direction: row-reverse;
   flex-grow: 1;
 
+  padding-right: 10px;
+
   button {
+    margin-left: 8px;
     height: 25px;
     width:  25px;
     font-weight: bolder;
     color: var(--accent);
-    outline: var(--text-dark) 1px solid;
-    border: none;
+    border: var(--dull) 1px solid;
+    outline: none;
     font-family: "Consolas", sans-serif;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--dullest);
     user-select: none;
   }
   button:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    outline: var(--text-dark-light) 1px solid;
+    background-color: var(--dull);
+    border: var(--red) 1px solid;
   }
 }
 

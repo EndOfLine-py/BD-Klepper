@@ -8,17 +8,14 @@
 }
 
 :root {
-    --dark: #080b12;
+    --accent: #57e4ec;
 
-    --light: #2e0e11;
+    --red: #ea463f;
+    --green: #1EED85;
+    --yellow: #fad23f;
 
-    --accent: #1cffff;
-
-
-    --text: #fd503f;
-    --text-accent: #ff6863;
-    --text-dark: #351216;
-    --text-dark-light: #6c252b;
+    --dull: #812b2e;
+    --dullest: #0c0f1b;
 
     color-scheme: dark;
 
@@ -46,7 +43,7 @@ body {
     height: 100vh;
     min-height: 100vh;
     max-height: 100vh;
-    color: var(--text);
+    color: var(--red);
     background-image: linear-gradient(to top, #080b12, #110d18, #1c0e1b, #260e18, #2e0e11);
     transition: all 0.5s ease;
     line-height: 1.6;
