@@ -25,7 +25,11 @@ There exists a dozen of yt-dlp wrappers, but I wanted to make my own, to gather 
 
 I also like to do things my way, and replicating the UI of my favorite game is also a plus, and makes my project stick out.
 
-
+## ToDo
+* Batch feature
+* MacOS and Windows Releases
+* Build Instructions
+* Clean up CSS structure
 
 ## Credits
 * **References**: [Game UI Database](https://www.gameuidatabase.com/gameData.php?id=439)
