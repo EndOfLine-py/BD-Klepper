@@ -1,19 +1,75 @@
 <script setup>
+import { ref } from 'vue';
+import { invoke } from "@tauri-apps/api/core";
+import { downloadDir, join } from '@tauri-apps/api/path';
+
+const videoUrl = ref('');
+const statusText = ref('Nothing to report');
+const mediaFormat = ref('mp4');
+
+
+async function single_klep() {
+  if (!videoUrl.value) {
+    statusText.value = 'URL missing, gonk.';
+    return;
+  }
+
+  statusText.value = 'Jacked in. Resolving output path...';
+
+  try {
+
+    const baseDir = await downloadDir();
+
+    const outputPath = await join(baseDir, '%(title)s.%(ext)s');
+
+
+    const output = await invoke('download_single', {
+      url: videoUrl.value,
+      mediaFormat: mediaFormat.value,
+      outputPath: outputPath
+    });
+
+    console.log("Success:", output);
+    statusText.value = output; // "Data klepped successfully."
+  } catch (error) {
+    console.error("The Netrunner grid rejected the link:", error);
+    statusText.value = error;
+  }
+}
+
+function change_format() {
+  const nextFormat = {
+    'mp4': 'mp3',
+    'mp3': 'wav',
+    'wav': 'mp4'
+  };
+
+  // Look up the current format, and set it to the next one.
+  // The '|| mp4' is a failsafe just in case the value gets messed up.
+  mediaFormat.value = nextFormat[mediaFormat.value] || 'mp4';
+}
 
 </script>
 
 <template>
-<div class="container">
-  <div class="cyber-input-wrapper">
-    <input type="text" autocomplete="off" autocapitalize="off" spellcheck="false"/>
+  <div class="container">
+
+    <div class="main-input-wrapper">
+      <button id="formatchange" @click="change_format">{{ mediaFormat }}</button>
+      <div class="cyber-input-wrapper">
+        <input v-model="videoUrl" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"/>
+      </div>
+    </div>
+
+    <button @click="single_klep">Klep it!</button>
+
+    <div class="cyber-p-wrapper">
+      <p>
+        {{ statusText }}
+      </p>
+    </div>
+
   </div>
-  <button>Klep it!</button>
-  <div class="cyber-p-wrapper">
-    <p>
-      Status
-    </p>
-  </div>
-</div>
 </template>
 
 <style scoped>
@@ -29,7 +85,8 @@
   width: 100%;
   height: 100%;
 
-  gap: 0.5em;
+  margin-top: 10px;
+
 }
 
 button {
@@ -71,9 +128,9 @@ button::before {
   content: '';
   position: absolute;
 
-  top:    1px;
-  left:   1px;
-  right:  1px;
+  top: 1px;
+  left: 1px;
+  right: 1px;
   bottom: 1px;
 
   background-color: var(--dullest);
@@ -92,17 +149,14 @@ button::before {
 button:hover::before {
   background-color: var(--dull);
 }
+
 button:active::before {
   background-color: var(--accent);
 }
 
 
 .cyber-input-wrapper {
-  position: relative;
-  display: inline-block;
   width: 80%;
-
-  margin-bottom: 10px;
 
   background-color: var(--dull);
 
@@ -163,6 +217,8 @@ button:active::before {
       calc(100% - 12px) 100%,
       0 100%
   );
+
+  user-select: none;
 }
 
 .cyber-p-wrapper p {
@@ -184,19 +240,22 @@ button:active::before {
       calc(100% - 12px) 100%,
       0 100%
   );
+
+  user-select: none;
 }
+
 .cyber-p-wrapper p::before {
-  content: '!';                 /* The exclamation mark */
+  content: '!'; /* The exclamation mark */
   display: inline-flex;
-  align-items: center;          /* Centers the '!' vertically */
-  justify-content: center;      /* Centers the '!' horizontally */
+  align-items: center; /* Centers the '!' vertically */
+  justify-content: center; /* Centers the '!' horizontally */
 
-  width:  24px;                  /* Size of the circle */
+  width: 24px; /* Size of the circle */
   height: 24px;
-  border-radius: 50%;           /* Makes it a perfect circle */
+  border-radius: 50%; /* Makes it a perfect circle */
 
-  background-color: #fbc531;    /* Cyberpunk warning yellow */
-  color: #0c1015;               /* Matches your dark UI color */
+  background-color: #fbc531; /* Cyberpunk warning yellow */
+  color: #0c1015; /* Matches your dark UI color */
 
   font-family: "Arial Black", sans-serif; /* Makes the '!' nice and bold */
   font-size: 20px;
@@ -206,5 +265,24 @@ button:active::before {
 
   /* Keeps the badge from shrinking if the paragraph text gets long */
   flex-shrink: 0;
+
+  margin-right: 10px;
+
+  user-select: none;
+}
+
+#formatchange {
+  text-transform: uppercase;
+
+  width: 70px;
+  padding: 7px;
+}
+
+.main-input-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 100%;
 }
 </style>

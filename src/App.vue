@@ -129,7 +129,6 @@ nav a:hover {
 
 footer {
   padding: 0;
-  margin-bottom: -3px;
   width: 100%;
   user-select: none;
   border-top: var(--dull) 1px solid;
