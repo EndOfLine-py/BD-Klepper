@@ -17,7 +17,10 @@
         "height": 360,
         "resizable": false,
         "decorations": false,
-        "visible": false
+        "visible": false,
+        "center": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
       }
     ],
     "security": {
