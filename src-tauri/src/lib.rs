@@ -49,7 +49,7 @@ async fn download_single(
         Ok(String::from("BD klepped successfully."))
     } else {
         let err_msg = String::from_utf8_lossy(&output.stderr).into_owned();
-        Err(format!("Extraction blocked: {}", err_msg))
+        Err(format!("{}", err_msg))
     }
 }
 

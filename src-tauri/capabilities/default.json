@@ -11,9 +11,10 @@
     "core:window:default",
     "core:window:allow-close",
     "core:window:allow-minimize",
-    "core:window:allow-toggle-maximize",
+    "core:window:deny-maximize",
     "core:window:allow-start-dragging",
     "opener:allow-default-urls",
+    "core:window:allow-show",
     "shell:default",
     {
       "identifier": "shell:allow-execute",

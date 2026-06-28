@@ -3,6 +3,16 @@ import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { openUrl } from '@tauri-apps/plugin-opener';
+import { onMounted } from 'vue';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+
+onMounted(async () => {
+  // Grab the handle for the current active window layer
+  const appWindow = getCurrentWebviewWindow();
+
+  // Reveal the window now that Vue has completely mounted and applied main.css
+  await appWindow.show();
+});
 
 const greetMsg = ref("");
 const name = ref("");

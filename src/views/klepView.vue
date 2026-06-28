@@ -4,17 +4,26 @@ import { invoke } from "@tauri-apps/api/core";
 import { downloadDir, join } from '@tauri-apps/api/path';
 
 const videoUrl = ref('');
+
+const isWorking = ref(false);
+
 const statusText = ref('Nothing to report');
+const statusType = ref('idle'); // Idle, Warning, Error, Success
+const badgeText = ref('!');
+const statusColor = ref("var(--dull)");
+const messageWidth = ref('0%');
 const mediaFormat = ref('mp4');
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function single_klep() {
+  isWorking.value = true;
   if (!videoUrl.value) {
-    statusText.value = 'URL missing, gonk.';
+    await set_status('warning', 'Missing URL, gonk.')
     return;
   }
 
-  statusText.value = 'Jacked in. Resolving output path...';
+  await set_status('warning', 'Jacked in.');
 
   try {
 
@@ -22,18 +31,20 @@ async function single_klep() {
 
     const outputPath = await join(baseDir, '%(title)s.%(ext)s');
 
-
+    await set_status('Working...', 'Jacked in.');
     const output = await invoke('download_single', {
       url: videoUrl.value,
       mediaFormat: mediaFormat.value,
       outputPath: outputPath
     });
 
-    console.log("Success:", output);
-    statusText.value = output; // "Data klepped successfully."
+    isWorking.value = false;
+    await set_status('success', output);
+    await sleep(5000);
+    await set_status('idle', "");
   } catch (error) {
-    console.error("The Netrunner grid rejected the link:", error);
-    statusText.value = error;
+    isWorking.value = false;
+    await set_status('error', error);
   }
 }
 
@@ -49,6 +60,48 @@ function change_format() {
   mediaFormat.value = nextFormat[mediaFormat.value] || 'mp4';
 }
 
+let statusSequenceId = 0;
+
+async function set_status(type, status_text) {
+  statusSequenceId++;
+  const currentInstanceId = statusSequenceId;
+
+  switch (type) {
+    case 'idle':
+      statusType.value = 'idle';
+      badgeText.value = '';
+      statusColor.value = 'var(--dull)';
+      messageWidth.value = '0%';
+      break;
+    case 'warning':
+      statusType.value = 'warning';
+      badgeText.value = '!';
+      statusColor.value = 'var(--yellow)';
+      messageWidth.value = '50%';
+      break;
+    case 'error':
+      statusType.value = 'error';
+      badgeText.value = 'X';
+      statusColor.value = 'var(--red)';
+      messageWidth.value = '50%';
+      break;
+    case 'success':
+      statusType.value = 'success';
+      badgeText.value = '✔';
+      statusColor.value = 'var(--green)';
+      messageWidth.value = '50%';
+      break;
+  }
+
+  statusText.value = status_text;
+
+  await sleep(2000);
+
+  if (currentInstanceId === statusSequenceId) {
+    messageWidth.value = '0%';
+  }
+}
+
 </script>
 
 <template>
@@ -61,15 +114,21 @@ function change_format() {
       </div>
     </div>
 
-    <button @click="single_klep">Klep it!</button>
+    <button
+        :disabled=isWorking
+        @click="single_klep"
+        class="cyber-action-btn">
+      {{ isWorking === true ? '' : 'Klep it !' }}
+    </button>
 
-    <div class="cyber-p-wrapper">
-      <p>
+    <div class="cyber-p-wrapper" :style="{backgroundColor: statusColor, width: messageWidth}">
+      <p :style="{color: statusColor}">
+        <span class="cyber-badge" :style="{backgroundColor: statusColor}">{{ badgeText }}</span>
         {{ statusText }}
       </p>
     </div>
-
   </div>
+
 </template>
 
 <style scoped>
@@ -154,6 +213,33 @@ button:active::before {
   background-color: var(--accent);
 }
 
+@keyframes content-cycle {
+  0%, 24% {
+    content: '   ';
+  }
+  25%, 49% {
+    content: '.  ';
+  }
+  50%, 74% {
+    content: '.. ';
+  }
+  75%, 100% {
+    content: '...';
+  }
+}
+
+button:disabled {
+  cursor: not-allowed;
+  color: var(--dull);
+}
+
+button:disabled::after {
+  content: '   ';
+  display: inline-block;
+  text-align: left;
+  width: 24px;
+  animation: content-cycle 1.6s infinite linear;
+}
 
 .cyber-input-wrapper {
   width: 80%;
@@ -203,10 +289,11 @@ button:active::before {
 }
 
 .cyber-p-wrapper {
+
   display: inline-block; /* Or 'block' if you want it to stretch full width */
-  width: 50%;
-  margin: 10px;
-  align-content: center;
+  transition: width 0.5s;
+  width: 0%;
+  margin: 15px;
 
   background-color: var(--yellow); /* Your OUTLINE color */
 
@@ -219,11 +306,15 @@ button:active::before {
   );
 
   user-select: none;
+  box-shadow: 0 0 12px var(--dull);
+  overflow: hidden;
 }
 
 .cyber-p-wrapper p {
   margin: 1px; /* The thickness of your border */
   padding: 5px;
+
+  text-wrap: nowrap;
 
   font-family: "Rajdhani Medium", serif;
   font-size: 20px;
@@ -231,6 +322,8 @@ button:active::before {
   background-color: var(--dullest); /* Your inner background color */
 
   text-align: left;
+
+  text-shadow: 0 0 12px var(--dull);
 
   /* Must have the exact same clip-path to match the wrapper shape */
   clip-path: polygon(
@@ -244,8 +337,8 @@ button:active::before {
   user-select: none;
 }
 
-.cyber-p-wrapper p::before {
-  content: '!'; /* The exclamation mark */
+/* The converted badge styles */
+.cyber-badge {
   display: inline-flex;
   align-items: center; /* Centers the '!' vertically */
   justify-content: center; /* Centers the '!' horizontally */
@@ -260,8 +353,8 @@ button:active::before {
   font-family: "Arial Black", sans-serif; /* Makes the '!' nice and bold */
   font-size: 20px;
 
-  /* Optional: Soft red glow behind the circle to match the image */
-  box-shadow: 0 0 12px rgba(255, 71, 87, 0.4);
+  /* Soft red glow behind the circle */
+  box-shadow: 0 0 12px var(--dull);
 
   /* Keeps the badge from shrinking if the paragraph text gets long */
   flex-shrink: 0;
@@ -284,5 +377,6 @@ button:active::before {
   align-items: center;
   flex-wrap: nowrap;
   width: 100%;
+  margin-top: 50px;
 }
 </style>
