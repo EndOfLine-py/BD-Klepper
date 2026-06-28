@@ -17,11 +17,11 @@ const mediaFormat = ref('mp4');
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function single_klep() {
-  isWorking.value = true;
   if (!videoUrl.value) {
     await set_status('warning', 'Missing URL, gonk.')
     return;
   }
+  isWorking.value = true;
 
   await set_status('warning', 'Jacked in.');
 
@@ -77,19 +77,19 @@ async function set_status(type, status_text) {
       statusType.value = 'warning';
       badgeText.value = '!';
       statusColor.value = 'var(--yellow)';
-      messageWidth.value = '50%';
+      messageWidth.value = '60%';
       break;
     case 'error':
       statusType.value = 'error';
       badgeText.value = 'X';
       statusColor.value = 'var(--red)';
-      messageWidth.value = '50%';
+      messageWidth.value = '60%';
       break;
     case 'success':
       statusType.value = 'success';
       badgeText.value = '✔';
       statusColor.value = 'var(--green)';
-      messageWidth.value = '50%';
+      messageWidth.value = '60%';
       break;
   }
 
