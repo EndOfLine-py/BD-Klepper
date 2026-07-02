@@ -35,6 +35,12 @@ async fn download_single(
             .arg("--extract-audio")
             .arg("--audio-format").arg("wav")
             .arg("--audio-quality").arg("0");
+    }
+    else if media_format == "ogg" {
+         cmd = cmd
+            .arg("--extract-audio")
+            .arg("--audio-format").arg("vorbis")
+            .arg("--audio-quality").arg("0");
     } else {
         cmd = cmd.arg("--format").arg("bestvideo+bestaudio/best");
     }

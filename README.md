@@ -16,6 +16,7 @@ The interface is my attempt at recreating Cyberpunk 2077's menus as closely as I
 
 * Download media with two modes possible
   * Single URL or Batch
+* Select formats between MP4, MP3, WAV, OGG
 * Cyberpunk 2077 UI
 * Built with Tauri + Vue.js
 

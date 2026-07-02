@@ -52,7 +52,8 @@ function change_format() {
   const nextFormat = {
     'mp4': 'mp3',
     'mp3': 'wav',
-    'wav': 'mp4'
+    'wav': 'ogg',
+    'ogg': 'mp4'
   };
 
   // Look up the current format, and set it to the next one.
@@ -100,8 +101,9 @@ async function set_status(type, status_text) {
   if (currentInstanceId === statusSequenceId) {
     messageWidth.value = '0%';
   }
-}
 
+  await sleep(505);
+}
 </script>
 
 <template>
@@ -117,7 +119,8 @@ async function set_status(type, status_text) {
     <button
         :disabled=isWorking
         @click="single_klep"
-        class="cyber-action-btn">
+        class="cyber-action-btn"
+    >
       {{ isWorking === true ? '' : 'Klep it !' }}
     </button>
 
