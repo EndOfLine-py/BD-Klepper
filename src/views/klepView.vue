@@ -56,8 +56,6 @@ function change_format() {
     'ogg': 'mp4'
   };
 
-  // Look up the current format, and set it to the next one.
-  // The '|| mp4' is a failsafe just in case the value gets messed up.
   mediaFormat.value = nextFormat[mediaFormat.value] || 'mp4';
 }
 
@@ -175,73 +173,73 @@ button {
 
   cursor: pointer;
   user-select: none;
-}
 
-button:hover {
-  background-color: var(--red);
-}
+  &:hover {
+    background-color: var(--red);
+  }
 
-button:active {
-  background-color: var(--accent);
-  color: black;
-}
+  &:active {
+    background-color: var(--accent);
+    color: black;
+  }
 
-button::before {
-  content: '';
-  position: absolute;
+  &::before {
+    content: '';
+    position: absolute;
 
-  top: 1px;
-  left: 1px;
-  right: 1px;
-  bottom: 1px;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    bottom: 1px;
 
-  background-color: var(--dullest);
+    background-color: var(--dullest);
 
-  z-index: -1;
+    z-index: -1;
 
-  clip-path: polygon(
-      0 0,
-      100% 0,
-      100% calc(100% - 12px),
-      calc(100% - 12px) 100%,
-      0 100%
-  );
-}
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% calc(100% - 12px),
+        calc(100% - 12px) 100%,
+        0 100%
+    );
+  }
 
-button:hover::before {
-  background-color: var(--dull);
-}
+  &:hover::before {
+    background-color: var(--dull);
+  }
 
-button:active::before {
-  background-color: var(--accent);
-}
+  &:active::before {
+    background-color: var(--accent);
+  }
 
-@keyframes content-cycle {
-  0%, 24% {
+  @keyframes content-cycle {
+    0%, 24% {
+      content: '   ';
+    }
+    25%, 49% {
+      content: '.  ';
+    }
+    50%, 74% {
+      content: '.. ';
+    }
+    75%, 100% {
+      content: '...';
+    }
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: var(--dull);
+  }
+
+  &:disabled::after {
     content: '   ';
+    display: inline-block;
+    text-align: left;
+    width: 24px;
+    animation: content-cycle 1.6s infinite linear;
   }
-  25%, 49% {
-    content: '.  ';
-  }
-  50%, 74% {
-    content: '.. ';
-  }
-  75%, 100% {
-    content: '...';
-  }
-}
-
-button:disabled {
-  cursor: not-allowed;
-  color: var(--dull);
-}
-
-button:disabled::after {
-  content: '   ';
-  display: inline-block;
-  text-align: left;
-  width: 24px;
-  animation: content-cycle 1.6s infinite linear;
 }
 
 .cyber-input-wrapper {
@@ -288,17 +286,17 @@ button:disabled::after {
 }
 
 .cyber-input-wrapper:focus-within {
-  background-color: var(--accent); /* Turns white on focus, change to whatever you like */
+  background-color: var(--accent);
 }
 
 .cyber-p-wrapper {
 
-  display: inline-block; /* Or 'block' if you want it to stretch full width */
+  display: inline-block;
   transition: width 0.5s;
   width: 0%;
   margin: 15px;
 
-  background-color: var(--yellow); /* Your OUTLINE color */
+  background-color: var(--yellow);
 
   clip-path: polygon(
       0 0,
@@ -314,7 +312,7 @@ button:disabled::after {
 }
 
 .cyber-p-wrapper p {
-  margin: 1px; /* The thickness of your border */
+  margin: 1px;
   padding: 5px;
 
   text-wrap: nowrap;
@@ -322,13 +320,13 @@ button:disabled::after {
   font-family: "Rajdhani Medium", serif;
   font-size: 20px;
   color: var(--yellow);
-  background-color: var(--dullest); /* Your inner background color */
+  background-color: var(--dullest);
 
   text-align: left;
 
   text-shadow: 0 0 12px var(--dull);
 
-  /* Must have the exact same clip-path to match the wrapper shape */
+
   clip-path: polygon(
       0 0,
       100% 0,
@@ -340,26 +338,24 @@ button:disabled::after {
   user-select: none;
 }
 
-/* The converted badge styles */
+
 .cyber-badge {
   display: inline-flex;
-  align-items: center; /* Centers the '!' vertically */
-  justify-content: center; /* Centers the '!' horizontally */
+  align-items: center;
+  justify-content: center;
 
-  width: 24px; /* Size of the circle */
+  width: 24px;
   height: 24px;
-  border-radius: 50%; /* Makes it a perfect circle */
+  border-radius: 50%;
 
-  background-color: #fbc531; /* Cyberpunk warning yellow */
-  color: #0c1015; /* Matches your dark UI color */
+  background-color: #fbc531;
+  color: #0c1015;
 
-  font-family: "Arial Black", sans-serif; /* Makes the '!' nice and bold */
+  font-family: "Arial Black", sans-serif;
   font-size: 20px;
 
-  /* Soft red glow behind the circle */
   box-shadow: 0 0 12px var(--dull);
 
-  /* Keeps the badge from shrinking if the paragraph text gets long */
   flex-shrink: 0;
 
   margin-right: 10px;
