@@ -149,6 +149,20 @@ async function set_status(type, status_text) {
 
 }
 
+@keyframes content-cycle {
+  0%, 24% {
+    content: '   ';
+  }
+  25%, 49% {
+    content: '.  ';
+  }
+  50%, 74% {
+    content: '.. ';
+  }
+  75%, 100% {
+    content: '...';
+  }
+}
 button {
   position: relative;
   display: inline-block;
@@ -211,21 +225,6 @@ button {
 
   &:active::before {
     background-color: var(--accent);
-  }
-
-  @keyframes content-cycle {
-    0%, 24% {
-      content: '   ';
-    }
-    25%, 49% {
-      content: '.  ';
-    }
-    50%, 74% {
-      content: '.. ';
-    }
-    75%, 100% {
-      content: '...';
-    }
   }
 
   &:disabled {

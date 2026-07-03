@@ -29,14 +29,14 @@ const loader = document.getElementsByClassName("loader")[0];
 const loaderFadeOut = loader.animate(
     [
       // Keyframes
-      { opacity: 1 },  // Start at 100% opacity
-      { opacity: 0}   // End at 0% opacity
+      { opacity: 1 },
+      { opacity: 0}
     ],
     {
       // Timing Options
-      duration: 500,     // Animation duration in milliseconds (e.g., 500ms = 0.5s)
-      easing: 'ease-out', // Smooth slow-down effect at the end
-      fill: 'forwards',   // Crucial: Keeps the element at 0% opacity when finished
+      duration: 500,
+      easing: 'ease-out',
+      fill: 'forwards',
       delay: 500
     }
 );

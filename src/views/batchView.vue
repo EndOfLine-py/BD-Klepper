@@ -8,6 +8,7 @@ const textarea_content = ref('');
 const isWorking = ref(false);
 const mediaFormat = ref('mp4');
 const linkCount = ref(0);
+const processedLinkCount = ref(0);
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -30,7 +31,7 @@ function reformat_textarea(event) {
   // (?<!^|\n) -> Negative lookbehind: Ensure the link is NOT at the start of the text or start of a line
   // (https?:\/\/[^\s]+) -> Matches http:// or https:// followed by non-whitespace characters
   const NewlineUrlRegex = /(?<!^|\n)(https?:\/\/[^\s]+)/g;
-  const ValidUrlRegex =  /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/g;
+  const ValidUrlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/g;
 
   const correctedText = originalText.replace(NewlineUrlRegex, '\n$1');
 
@@ -47,8 +48,35 @@ function reformat_textarea(event) {
       textarea.setSelectionRange(start + 1, end + 1);
     }, 0);
   }
+}
 
+async function multi_klep() {
+  if (!textarea_content.value || isWorking.value || linkCount.value === 0) {
+    return;
+  }
 
+  processedLinkCount.value = linkCount.value;
+  isWorking.value = true;
+
+  let urlList = textarea_content.value.split("\n");
+  console.log(urlList);
+
+  return
+
+  try {
+    const baseDir = await downloadDir();
+
+    const outputPath = await join(baseDir, '%(title)s.%(ext)s');
+
+    await set_status('Working...', 'Jacked in.');
+    const output = await invoke('download_single', {
+      url: videoUrl.value,
+      mediaFormat: mediaFormat.value,
+      outputPath: outputPath
+    });
+  } catch (error) {
+
+  }
 }
 </script>
 
@@ -56,14 +84,20 @@ function reformat_textarea(event) {
   <div class="container">
     <div class="linkbox">
       <div class="textarea-wrapper">
-        <textarea draggable="false" id="textarea" name="textarea" @input="reformat_textarea" v-model="textarea_content" translate="no" autocorrect="off" spellcheck="false"></textarea>
+        <textarea draggable="false" id="textarea" name="textarea" @input="reformat_textarea" v-model="textarea_content"
+                  translate="no" autocorrect="off" spellcheck="false" :disabled="isWorking"></textarea>
       </div>
     </div>
     <div class="controls">
       <button id="formatchange" @click="change_format">{{ mediaFormat }}</button>
-      <button>Klep it all!</button>
+      <button @click="multi_klep" :disabled="isWorking">{{ isWorking === true ? '' : 'Klep it all!' }}</button>
       <div class="status-wrapper">
-        <p class="status">{{ linkCount }} BD{{ linkCount > 1 ? "s" : ""}} detected</p>
+        <p v-if="!isWorking"  class="status">{{ linkCount }}</p>
+        <p v-if="!isWorking" class="status">BD{{ linkCount > 1 ? "s" : "" }} detected.</p>
+        <p v-if="isWorking" class="status">{{processedLinkCount}}</p>
+        <p v-if="isWorking" class="status">/</p>
+        <p v-if="isWorking" class="status">{{ linkCount }}</p>
+        <p v-if="isWorking" class="status">BD{{ linkCount > 1 ? "s" : "" }} left.</p>
       </div>
     </div>
   </div>
@@ -150,12 +184,32 @@ function reformat_textarea(event) {
         0 100%
     );
 
+    transition: background-color 0.2s;
+
     &::selection {
+      background-color: color-mix(in srgb, var(--hack-lime) 40%, black);
+    }
+
+    &:disabled {
       background-color: color-mix(in srgb, var(--hack-lime) 40%, black);
     }
   }
 }
 
+@keyframes content-cycle {
+  0%, 24% {
+    content: '   ';
+  }
+  25%, 49% {
+    content: '.  ';
+  }
+  50%, 74% {
+    content: '.. ';
+  }
+  75%, 100% {
+    content: '...';
+  }
+}
 button {
   position: relative;
   display: inline-block;
@@ -168,6 +222,8 @@ button {
   font-size: 20px;
 
   color: var(--accent);
+
+  transition: width 0.2s;
 
   background-color: var(--dull);
   clip-path: polygon(
@@ -220,21 +276,6 @@ button {
     background-color: var(--accent);
   }
 
-  @keyframes content-cycle {
-    0%, 24% {
-      content: '   ';
-    }
-    25%, 49% {
-      content: '.  ';
-    }
-    50%, 74% {
-      content: '.. ';
-    }
-    75%, 100% {
-      content: '...';
-    }
-  }
-
   &:disabled {
     cursor: not-allowed;
     color: var(--dull);
@@ -257,16 +298,21 @@ button {
 }
 
 .status-wrapper {
+  display: flex;
   flex-grow: 1;
-  text-align: right;
+  flex-direction: row;
+  gap: 10px;
+  padding-left: 50px;
+  text-align: left;
+  text-wrap: nowrap;
 
- p {
-  cursor: default;
-  user-select: none;
-  font-family: "Rajdhani Medium", serif;
-  text-shadow: var(--dull) 0 0 12px;
-  font-size: large;
-  text-align: right;
-}
+  p {
+    cursor: default;
+    user-select: none;
+    font-family: "Rajdhani Medium", serif;
+    text-shadow: var(--dull) 0 0 12px;
+    font-size: large;
+    font-variant-numeric: tabular-nums;
+  }
 }
 </style>
