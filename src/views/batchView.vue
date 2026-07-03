@@ -9,8 +9,14 @@ const isWorking = ref(false);
 const mediaFormat = ref('mp4');
 const linkCount = ref(0);
 const processedLinkCount = ref(0);
+const failedLinkCount = ref(0);
+const processDone = ref(false);
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+// Regex breakdown:
+// (?<!^|\n) -> Negative lookbehind: Ensure the link is NOT at the start of the text or start of a line
+// (https?:\/\/[^\s]+) -> Matches http:// or https:// followed by non-whitespace characters
+const NewlineUrlRegex = /(?<!^|\n)(https?:\/\/[^\s]+)/g;
+const ValidUrlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/g;
 
 function change_format() {
   const nextFormat = {
@@ -23,15 +29,9 @@ function change_format() {
   mediaFormat.value = nextFormat[mediaFormat.value] || 'mp4';
 }
 
-function reformat_textarea(event) {
-  const textarea = event.target;
+function reformat_textarea() {
+  const textarea = document.getElementById('textarea');
   const originalText = textarea_content.value;
-
-  // Regex breakdown:
-  // (?<!^|\n) -> Negative lookbehind: Ensure the link is NOT at the start of the text or start of a line
-  // (https?:\/\/[^\s]+) -> Matches http:// or https:// followed by non-whitespace characters
-  const NewlineUrlRegex = /(?<!^|\n)(https?:\/\/[^\s]+)/g;
-  const ValidUrlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/g;
 
   const correctedText = originalText.replace(NewlineUrlRegex, '\n$1');
 
@@ -51,6 +51,14 @@ function reformat_textarea(event) {
 }
 
 async function multi_klep() {
+  // THE LOGIC
+  // The app has a counter that only increments on valid URLs
+  // The downloader takes ALL lines in the TextArea, valid URL or not.
+  // Both remaining counter and total counter are on the same value based on the number of valid URL
+  // Remaining counter only decrements on URL that failed, not invalid strings URL
+  // Deletes the URLs that worked, and puts back the lines that error'd or invalid.
+  // Error counter only works on the valid URLs that error'd during download.
+  processDone.value = false;
   if (!textarea_content.value || isWorking.value || linkCount.value === 0) {
     return;
   }
@@ -59,24 +67,42 @@ async function multi_klep() {
   isWorking.value = true;
 
   let urlList = textarea_content.value.split("\n");
-  console.log(urlList);
+  let final_urlList = [];
 
-  return
+  for (const urlListKey in urlList) {
+    let url = urlList[urlListKey];
 
-  try {
-    const baseDir = await downloadDir();
+    console.log(url);
+    console.log(url.match(ValidUrlRegex));
 
-    const outputPath = await join(baseDir, '%(title)s.%(ext)s');
+    if (url.match(ValidUrlRegex)) {
+      try {
+        const baseDir = await downloadDir();
 
-    await set_status('Working...', 'Jacked in.');
-    const output = await invoke('download_single', {
-      url: videoUrl.value,
-      mediaFormat: mediaFormat.value,
-      outputPath: outputPath
-    });
-  } catch (error) {
+        const outputPath = await join(baseDir, '%(title)s.%(ext)s');
 
+        await invoke('download_single', {
+          url: url,
+          mediaFormat: mediaFormat.value,
+          outputPath: outputPath
+        });
+      } catch (error) {
+        final_urlList.push(url);
+        failedLinkCount.value += 1;
+      }
+      finally {
+        processedLinkCount.value -= 1;
+      }
+    }
+    else {
+      final_urlList.push(url);
+    }
   }
+
+  isWorking.value = false;
+  processDone.value = true;
+  textarea_content.value = final_urlList.join('\n');
+  reformat_textarea();
 }
 </script>
 
@@ -92,12 +118,19 @@ async function multi_klep() {
       <button id="formatchange" @click="change_format">{{ mediaFormat }}</button>
       <button @click="multi_klep" :disabled="isWorking">{{ isWorking === true ? '' : 'Klep it all!' }}</button>
       <div class="status-wrapper">
-        <p v-if="!isWorking"  class="status">{{ linkCount }}</p>
-        <p v-if="!isWorking" class="status">BD{{ linkCount > 1 ? "s" : "" }} detected.</p>
-        <p v-if="isWorking" class="status">{{processedLinkCount}}</p>
-        <p v-if="isWorking" class="status">/</p>
-        <p v-if="isWorking" class="status">{{ linkCount }}</p>
-        <p v-if="isWorking" class="status">BD{{ linkCount > 1 ? "s" : "" }} left.</p>
+       <div v-if="!isWorking">
+         <p>{{ linkCount }}</p>
+         <p>BD{{ linkCount > 1 ? "s" : "" }} detected.</p>
+       </div>
+        <div v-if="isWorking">
+          <p>{{processedLinkCount}}</p>
+          <p>/</p>
+          <p>{{ linkCount }}</p>
+          <p>BD{{ linkCount > 1 ? "s" : "" }} left.</p>
+        </div>
+        <div v-if="processDone">
+          <p id="error">{{ failedLinkCount }} BD{{ failedLinkCount > 1 ? "s" : "" }} Failed.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -301,10 +334,20 @@ button {
   display: flex;
   flex-grow: 1;
   flex-direction: row;
-  gap: 10px;
+  gap: 80px;
   padding-left: 50px;
   text-align: left;
   text-wrap: nowrap;
+  align-items: center;
+
+  div {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    text-align: left;
+    text-wrap: nowrap;
+    align-items: center;
+  }
 
   p {
     cursor: default;
@@ -314,5 +357,14 @@ button {
     font-size: large;
     font-variant-numeric: tabular-nums;
   }
+}
+
+#error {
+  border: var(--red) 1px solid;
+  padding: 5px;
+  padding-bottom: 2px;
+  padding-top: 2px;
+  color: var(--red);
+  text-shadow: var(--red) 0 0 12px;
 }
 </style>
