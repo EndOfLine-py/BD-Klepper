@@ -8,16 +8,16 @@ import {invoke} from '@tauri-apps/api/core';
 onMounted(async () => {
   const appWindow = getCurrentWebviewWindow();
   const loader = document.getElementsByClassName("loader")[0];
+  const loaderError = document.getElementById("loader-error");
 
   try {
     const dependenciesOk = await invoke('check_sidecars');
 
     if (dependenciesOk) {
       await appWindow.show();
-
       const loaderFadeOut = loader.animate(
           [{opacity: 1}, {opacity: 0}],
-          {duration: 500, easing: 'ease-out', fill: 'forwards', delay: 500}
+          {duration: 500, easing: 'ease-out', fill: 'forwards'}
       );
 
       loaderFadeOut.onfinish = () => {
@@ -25,7 +25,7 @@ onMounted(async () => {
       };
     } else {
       await appWindow.show();
-
+      loaderError.style.display = 'inherit';
     }
 
   } catch (error) {
@@ -48,6 +48,10 @@ const minimize = async () => {
 const close = async () => {
   await appWindow.close();
 };
+
+document.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+});
 </script>
 
 <template>

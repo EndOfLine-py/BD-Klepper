@@ -20,7 +20,8 @@
         "visible": false,
         "center": true,
         "titleBarStyle": "Overlay",
-        "hiddenTitle": true
+        "hiddenTitle": true,
+        "devtools": false
       }
     ],
     "security": {
