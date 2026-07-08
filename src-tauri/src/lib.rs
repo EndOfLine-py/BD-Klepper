@@ -1,4 +1,5 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+use tauri::Manager;
 use tauri_plugin_shell::ShellExt;
 
 #[tauri::command]
@@ -9,28 +10,46 @@ async fn download_single(
     output_path: String
 ) -> Result<String, String> {
 
-    // 1. Initialize the yt-dlp sidecar
     let mut cmd = app_handle
         .shell()
         .sidecar("yt-dlp")
         .map_err(|e| format!("Failed to boot sidecar: {}", e))?;
 
-    // 2. Apply baseline arguments (warnings off, target output path)
     cmd = cmd
         .arg("--no-warnings")
-        .arg("--output").arg(&output_path);
+        .arg("--output").arg(output_path);
 
-    // 3. Basic format routing based on your Vue variable
+    let platform_folder = match std::env::consts::OS {
+        "windows" => "ffmpeg-windows",
+        "macos"   => "ffmpeg-macos",
+        _         => "ffmpeg-linux",
+    };
+
+    if let Ok(ffmpeg_bin_path) = app_handle.path().resolve(
+        format!("resources/{}/ffmpeg", platform_folder),
+        tauri::path::BaseDirectory::Resource
+    ) {
+        if let Some(ffmpeg_dir) = ffmpeg_bin_path.parent() {
+
+            if ffmpeg_dir.exists() {
+                cmd = cmd.arg("--ffmpeg-location").arg(ffmpeg_dir);
+            }
+        }
+    }
+
     if media_format == "mp3" {
         cmd = cmd
             .arg("--extract-audio")
             .arg("--audio-format").arg("mp3")
             .arg("--audio-quality").arg("0");
-    } else if media_format == "mp4" {
+    }
+    else if media_format == "mp4" {
         cmd = cmd
-            .arg("--format").arg("bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best")
-            .arg("--merge-output-format").arg("mp4");
-    } else if media_format == "wav" {
+            .arg("--format").arg("bestvideo+bestaudio/best")
+            .arg("--use-postprocessor").arg("FFmpegCopyStream")
+            .arg("--ppa").arg("CopyStream:-c:v libx264 -c:a aac");
+    }
+    else if media_format == "wav" {
          cmd = cmd
             .arg("--extract-audio")
             .arg("--audio-format").arg("wav")
@@ -41,15 +60,16 @@ async fn download_single(
             .arg("--extract-audio")
             .arg("--audio-format").arg("vorbis")
             .arg("--audio-quality").arg("0");
-    } else {
-        cmd = cmd.arg("--format").arg("bestvideo+bestaudio/best");
     }
-
+    else {
+        cmd = cmd
+            .arg("--format").arg("bestvideo[vcodec^=avc]+bestaudio[acodec^=mp4a]/best")
+            .arg("--recode-video").arg("mp4");
+    }
 
     cmd = cmd.arg(url);
 
     let output = cmd.output().await.map_err(|e| e.to_string())?;
-
 
     if output.status.success() {
         Ok(String::from("BD klepped successfully."))

@@ -79,7 +79,7 @@ async function multi_klep() {
       try {
         const baseDir = await downloadDir();
 
-        const outputPath = await join(baseDir, '%(title)s.%(ext)s');
+        const outputPath = await join(baseDir, '%(title)s_%(id)s.%(ext)s');
 
         await invoke('download_single', {
           url: url,

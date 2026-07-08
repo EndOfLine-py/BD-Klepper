@@ -29,7 +29,7 @@ async function single_klep() {
 
     const baseDir = await downloadDir();
 
-    const outputPath = await join(baseDir, '%(title)s.%(ext)s');
+    const outputPath = await join(baseDir, '%(title)s_%(id)s.%(ext)s');
 
     await set_status('Working...', 'Jacked in.');
     const output = await invoke('download_single', {

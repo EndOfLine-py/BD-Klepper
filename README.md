@@ -13,7 +13,6 @@ The interface is my attempt at recreating Cyberpunk 2077's menus as closely as I
 
 
 ## Features
-
 * Download media with two modes possible
   * Single URL or Batch
 * Select formats between MP4, MP3, WAV, OGG
@@ -21,7 +20,6 @@ The interface is my attempt at recreating Cyberpunk 2077's menus as closely as I
 * Built with Tauri + Vue.js
 
 ## Why?
-
 There exists a dozen of yt-dlp wrappers, but I wanted to make my own, to gather more experience with tools like VueJS and learning how Tauri works.
 
 I also like to do things my way, and replicating the UI of my favorite game is also a plus, and makes my project stick out.
@@ -29,6 +27,8 @@ I also like to do things my way, and replicating the UI of my favorite game is a
 ## ToDo
 * Build Instructions
 * Clean up CSS structure
+* Verify Compatibility
+* Misc Visual Polish
 
 ## Credits
 * **References**: [Game UI Database](https://www.gameuidatabase.com/gameData.php?id=439)
@@ -36,6 +36,7 @@ I also like to do things my way, and replicating the UI of my favorite game is a
 * **Logo Font**: [KH Interference](https://khtype.com/typeface/kh-interference/) (trial)
 * **Icon and Logo Brain**: Synapse Burnout Quickhack from the Cyberpunk 2077 game
 * **yt-dlp bin**: [Github](https://github.com/yt-dlp/yt-dlp)
+* **ffmpeg bin**: [Official Website](https://www.ffmpeg.org/)
 
 ## Legal
 ```

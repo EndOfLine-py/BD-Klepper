@@ -23,11 +23,6 @@
           "name": "binaries/yt-dlp",
           "sidecar": true,
           "args": true
-        },
-        {
-          "name": "binaries/ffmpeg",
-          "sidecar": true,
-          "args": true
         }
       ]
     }
