@@ -1,13 +1,36 @@
 <script setup>
-import { getCurrentWindow } from '@tauri-apps/api/window';
-import { openUrl } from '@tauri-apps/plugin-opener';
-import { onMounted } from 'vue';
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import {getCurrentWindow} from '@tauri-apps/api/window';
+import {openUrl} from '@tauri-apps/plugin-opener';
+import {onMounted} from 'vue';
+import {getCurrentWebviewWindow} from '@tauri-apps/api/webviewWindow';
+import {invoke} from '@tauri-apps/api/core';
 
-// Only show app when VueJS has loaded
 onMounted(async () => {
   const appWindow = getCurrentWebviewWindow();
-  await appWindow.show();
+  const loader = document.getElementsByClassName("loader")[0];
+
+  try {
+    const dependenciesOk = await invoke('check_sidecars');
+
+    if (dependenciesOk) {
+      await appWindow.show();
+
+      const loaderFadeOut = loader.animate(
+          [{opacity: 1}, {opacity: 0}],
+          {duration: 500, easing: 'ease-out', fill: 'forwards', delay: 500}
+      );
+
+      loaderFadeOut.onfinish = () => {
+        loader.style.display = 'none';
+      };
+    } else {
+      await appWindow.show();
+
+    }
+
+  } catch (error) {
+    console.error("Failed to verify internal application files:", error);
+  }
 });
 
 const openGitHub = async () => {
@@ -25,33 +48,15 @@ const minimize = async () => {
 const close = async () => {
   await appWindow.close();
 };
-const loader = document.getElementsByClassName("loader")[0];
-const loaderFadeOut = loader.animate(
-    [
-      // Keyframes
-      { opacity: 1 },
-      { opacity: 0}
-    ],
-    {
-      // Timing Options
-      duration: 500,
-      easing: 'ease-out',
-      fill: 'forwards',
-      delay: 500
-    }
-);
-loaderFadeOut.onfinish = () => {
-  loader.style.display = 'none';
-}
 </script>
 
 <template>
   <header class="svg-underline">
     <nav>
-        <router-link to="/" draggable="false" id="title">BD Klepper</router-link>
-        <span>|</span>
-        <router-link to="/" draggable="false">Solo Klep</router-link>
-        <router-link to="/batch" draggable="false">Klep W/ Chooms</router-link>
+      <router-link to="/" draggable="false" id="title">BD Klepper</router-link>
+      <span>|</span>
+      <router-link to="/" draggable="false">Solo Klep</router-link>
+      <router-link to="/batch" draggable="false">Klep W/ Chooms</router-link>
     </nav>
     <div data-tauri-drag-region class="titlebar">
       <button @click="close" id="titlebar-close">X</button>
@@ -78,6 +83,7 @@ loaderFadeOut.onfinish = () => {
   color: var(--accent);
   text-shadow: var(--accent) 0 0 12px;
 }
+
 .router-link-exact-active:hover {
   text-shadow: var(--accent) 0 0 12px;
 }
@@ -94,7 +100,7 @@ header {
 
 #title {
   padding-left: 10px;
-  font-family: "Rajdhani Medium",serif;
+  font-family: "Rajdhani Medium", serif;
   color: var(--red);
 
   text-decoration: none;
@@ -133,10 +139,12 @@ footer {
   display: flex;
   align-content: center;
   justify-content: center;
+
   span {
     cursor: pointer;
     color: var(--accent);
   }
+
   text-shadow: var(--dull) 0 0 12px;
 }
 
@@ -152,7 +160,7 @@ footer {
   button {
     margin-left: 8px;
     height: 25px;
-    width:  25px;
+    width: 25px;
     font-weight: bolder;
     color: var(--accent);
     border: var(--dull) 1px solid;
@@ -161,6 +169,7 @@ footer {
     background-color: var(--dullest);
     user-select: none;
   }
+
   button:hover {
     background-color: var(--dull);
     border: var(--red) 1px solid;

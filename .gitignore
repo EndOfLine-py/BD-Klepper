@@ -26,4 +26,3 @@ dist-ssr
 
 # Binaries
 src-tauri/binaries/*
-src-tauri/resources/ffmpeg-*

@@ -38,12 +38,8 @@
       "icons/icon.ico"
     ],
     "externalBin": [
-      "binaries/yt-dlp"
-    ],
-    "resources": [
-      "resources/ffmpeg-windows/*",
-      "resources/ffmpeg-macos/*",
-      "resources/ffmpeg-linux/*"
+      "binaries/yt-dlp",
+      "binaries/ffmpeg"
     ]
   }
 }

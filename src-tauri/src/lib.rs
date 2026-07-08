@@ -1,5 +1,4 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-use tauri::Manager;
 use tauri_plugin_shell::ShellExt;
 
 #[tauri::command]
@@ -19,21 +18,9 @@ async fn download_single(
         .arg("--no-warnings")
         .arg("--output").arg(output_path);
 
-    let platform_folder = match std::env::consts::OS {
-        "windows" => "ffmpeg-windows",
-        "macos"   => "ffmpeg-macos",
-        _         => "ffmpeg-linux",
-    };
-
-    if let Ok(ffmpeg_bin_path) = app_handle.path().resolve(
-        format!("resources/{}/ffmpeg", platform_folder),
-        tauri::path::BaseDirectory::Resource
-    ) {
-        if let Some(ffmpeg_dir) = ffmpeg_bin_path.parent() {
-
-            if ffmpeg_dir.exists() {
-                cmd = cmd.arg("--ffmpeg-location").arg(ffmpeg_dir);
-            }
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            cmd = cmd.arg("--ffmpeg-location").arg(exe_dir);
         }
     }
 
@@ -79,12 +66,27 @@ async fn download_single(
     }
 }
 
+#[tauri::command]
+async fn check_sidecars(app: tauri::AppHandle) -> Result<bool, String> {
+    let ytdlp_ok = match app.shell().sidecar("yt-dlp") {
+        Ok(cmd) => cmd.arg("--version").output().await.is_ok(),
+        Err(_) => false,
+    };
+
+    let ffmpeg_ok = match app.shell().sidecar("ffmpeg") {
+        Ok(cmd) => cmd.arg("-version").output().await.is_ok(),
+        Err(_) => false,
+    };
+
+    Ok(ytdlp_ok && ffmpeg_ok)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![download_single])
+        .invoke_handler(tauri::generate_handler![download_single, check_sidecars])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -34,8 +34,8 @@ I also like to do things my way, and replicating the UI of my favorite game is a
 * **References**: [Game UI Database](https://www.gameuidatabase.com/gameData.php?id=439)
 * **App Font**: [Rajdhani](https://fonts.google.com/specimen/Rajdhani) from Google Fonts
 * **Logo Font**: [KH Interference](https://khtype.com/typeface/kh-interference/) (trial)
-* **Icon and Logo Brain**: Synapse Burnout Quickhack from the Cyberpunk 2077 game
-* **yt-dlp bin**: [Github](https://github.com/yt-dlp/yt-dlp)
+* **Icon and Logo Brain**: Synapse Burnout Quickhack from the [Cyberpunk 2077 game](https://www.cyberpunk.net/)
+* **yt-dlp bin**: [Github Repo](https://github.com/yt-dlp/yt-dlp)
 * **ffmpeg bin**: [Official Website](https://www.ffmpeg.org/)
 
 ## Legal
